@@ -14,4 +14,4 @@
 
 ## 7. Add additional hidden layer
 
-## 8. 
+
