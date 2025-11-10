@@ -18,47 +18,47 @@ def show_images_labels_predictions(images,labels,
     if num>25: num=25 
     for i in range(0, num):
         ax=plt.subplot(5,5, 1+i)
-        #顯示黑白圖片
+        #Displaying black and white images
         ax.imshow(images[start_id], cmap='binary')
         
-        # 有 AI 預測結果資料, 才在標題顯示預測結果
+        # The prediction results are only displayed in the title if AI prediction data is available.
         if( len(predictions) > 0 ) :
             title = 'ai = ' + str(predictions[start_id])
-            # 預測正確顯示(o), 錯誤顯示(x)
+            # Correct prediction is displayed (o), incorrect prediction is displayed (x).
             title += (' (o)' if predictions[start_id]==labels[start_id] else ' (x)') 
             title += '\nlabel = ' + str(labels[start_id])
-        # 沒有 AI 預測結果資料, 只在標題顯示真實數值
+        # There is no AI prediction data; only the actual values ​​are displayed in the title.
         else :
             title = 'label = ' + str(labels[start_id])
             
-        # X, Y 軸不顯示刻度    
+        # The X and Y axes do not display scales.
         ax.set_title(title,fontsize=12) 
         ax.set_xticks([]);ax.set_yticks([])        
         start_id+=1 
     plt.show()
 
-#建立訓練資料和測試資料，包括訓練特徵集、訓練標籤和測試特徵集、測試標籤	
+#Establish training and testing data, including training feature sets, training labels, and testing feature sets and testing labels.
 (train_feature, train_label),\
 (test_feature, test_label) = mnist.load_data()
 
 #show_image(train_feature[0]) 
 #show_images_labels_predictions(train_feature,train_label,[],0,10)    
 
-#將 Features 特徵值換為 784個 float 數字的 1 維向量
+#Replace the features with a 1D vector of 784 float numbers.
 train_feature_vector =train_feature.reshape(len(train_feature), 784).astype('float32')
 test_feature_vector = test_feature.reshape(len( test_feature), 784).astype('float32')
 
-#Features 特徵值標準化
+#Features Eigenvalue standardization
 train_feature_normalize = train_feature_vector/255
 test_feature_normalize = test_feature_vector/255
 
-#label 轉換為 One-Hot Encoding 編碼
+#Convert label to One-Hot Encoding.
 train_label_onehot = to_categorical(train_label)
 test_label_onehot = to_categorical(test_label)
 
-#建立模型
+#Model building
 model = Sequential()
-#輸入層：784, 隱藏層：256，輸出層：10
+#Input layer: 784, Hidden layer: 256, Output layer: 10
 model.add(Dense(units=256, 
                 input_dim=784, 
                 kernel_initializer='normal', 
@@ -70,18 +70,18 @@ model.add(Dense(units=10,
 model.compile(loss='categorical_crossentropy', 
               optimizer='adam', metrics=['accuracy'])
 
-#以(train_feature_normalize,train_label_onehot)資料訓練，
-#訓練資料保留 20% 作驗證,訓練10次、每批次讀取200筆資料，顯示簡易訓練過程
+#以(train_feature_normalize,train_label_onehot)Data Training，
+#20% of the training data is retained for validation. The training is repeated 10 times, with 200 data entries read per batch, demonstrating a simplified training process.
 train_history =model.fit(x=train_feature_normalize,
                          y=train_label_onehot,validation_split=0.2, 
                          epochs=10, batch_size=200,verbose=2)
 
-#評估準確率
+#Assessment accuracy
 scores = model.evaluate(test_feature_normalize, test_label_onehot)
 print('\n準確率=',scores[1])
 
-#預測
+#predict
 prediction=np.argmax(model.predict(test_feature_normalize), axis=-1)
 
-#顯示圖像、預測值、真實值 
+#Displays images, predicted values, and actual values.
 show_images_labels_predictions(test_feature,test_label,prediction,0)
